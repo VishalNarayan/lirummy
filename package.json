@@ -20,6 +20,9 @@
     "socket.io-client": "^4.8.3",
     "tsx": "^4.22.3"
   },
+  "engines": {
+    "node": ">=20"
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
