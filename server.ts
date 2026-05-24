@@ -78,6 +78,8 @@ const smtpTransport = process.env.SMTP_USER && process.env.SMTP_PASS
   ? nodemailer.createTransport({
       service: 'gmail',
       auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+      connectionTimeout: 5000,
+      socketTimeout: 5000,
     })
   : null;
 
@@ -101,21 +103,17 @@ async function handleFeedbackPost(req: IncomingMessage, res: ServerResponse) {
 
   console.log('[Feedback]', feedback);
 
-  if (smtpTransport) {
-    try {
-      await smtpTransport.sendMail({
-        from: process.env.SMTP_USER,
-        to: 'mr.vishal.narayan@gmail.com',
-        subject: `LiRummy Feedback from ${feedback.name}`,
-        text: `Name: ${feedback.name}\nTime: ${feedback.timestamp}\n\n${feedback.message}`,
-      });
-    } catch (err) {
-      console.error('[Feedback] Email send failed:', err);
-    }
-  }
-
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ ok: true }));
+
+  if (smtpTransport) {
+    smtpTransport.sendMail({
+      from: process.env.SMTP_USER,
+      to: 'mr.vishal.narayan@gmail.com',
+      subject: `LiRummy Feedback from ${feedback.name}`,
+      text: `Name: ${feedback.name}\nTime: ${feedback.timestamp}\n\n${feedback.message}`,
+    }).catch(err => console.error('[Feedback] Email send failed:', err));
+  }
 }
 
 app.prepare().then(() => {
