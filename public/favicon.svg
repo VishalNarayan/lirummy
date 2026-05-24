@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Card body -->
+  <rect x="6" y="2" width="52" height="60" rx="5" fill="#fff" stroke="#1a1a2e" stroke-width="2.5"/>
+  <!-- Star/jester hat top -->
+  <polygon points="32,8 28,18 22,12 26,22 16,20 24,26 18,32 28,28 32,38 36,28 46,32 40,26 48,20 38,22 42,12 36,18" fill="#9333ea"/>
+  <!-- Face -->
+  <circle cx="32" cy="26" r="4" fill="#facc15"/>
+  <!-- Smile -->
+  <path d="M29,27 Q32,31 35,27" fill="none" stroke="#1a1a2e" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Eyes -->
+  <circle cx="30" cy="25" r="0.8" fill="#1a1a2e"/>
+  <circle cx="34" cy="25" r="0.8" fill="#1a1a2e"/>
+  <!-- Bottom text -->
+  <text x="32" y="52" text-anchor="middle" font-size="14" font-weight="bold" fill="#9333ea" font-family="serif">JOKER</text>
+</svg>

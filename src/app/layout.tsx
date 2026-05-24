@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "LiRummy — 13-Card Indian Rummy",
   description: "Play 13-card Indian Rummy online with friends",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

@@ -2,7 +2,6 @@ import { createServer, IncomingMessage, ServerResponse } from 'http';
 import { parse } from 'url';
 import next from 'next';
 import { Server as SocketServer } from 'socket.io';
-import nodemailer from 'nodemailer';
 import {
   createInitialGameState,
   generateRoomCode,
@@ -74,14 +73,29 @@ function getPlayerIdFromSocket(socketId: string): string | undefined {
   return undefined;
 }
 
-const smtpTransport = process.env.SMTP_USER && process.env.SMTP_PASS
-  ? nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-      connectionTimeout: 5000,
-      socketTimeout: 5000,
-    })
-  : null;
+async function sendFeedbackEmail(feedback: { name: string; message: string; timestamp: string }) {
+  const resendKey = process.env.RESEND_API_KEY;
+  if (!resendKey) return;
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${resendKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'LiRummy <onboarding@resend.dev>',
+      to: 'mr.vishal.narayan@gmail.com',
+      subject: `LiRummy Feedback from ${feedback.name}`,
+      text: `Name: ${feedback.name}\nTime: ${feedback.timestamp}\n\n${feedback.message}`,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Resend API error: ${res.status} ${err}`);
+  }
+}
 
 async function handleFeedbackPost(req: IncomingMessage, res: ServerResponse) {
   const chunks: Buffer[] = [];
@@ -106,14 +120,7 @@ async function handleFeedbackPost(req: IncomingMessage, res: ServerResponse) {
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ ok: true }));
 
-  if (smtpTransport) {
-    smtpTransport.sendMail({
-      from: process.env.SMTP_USER,
-      to: 'mr.vishal.narayan@gmail.com',
-      subject: `LiRummy Feedback from ${feedback.name}`,
-      text: `Name: ${feedback.name}\nTime: ${feedback.timestamp}\n\n${feedback.message}`,
-    }).catch(err => console.error('[Feedback] Email send failed:', err));
-  }
+  sendFeedbackEmail(feedback).catch(err => console.error('[Feedback] Email send failed:', err));
 }
 
 app.prepare().then(() => {
